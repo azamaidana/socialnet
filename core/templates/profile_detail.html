@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<h2> Профиль {{ profile.user.username }}</h2>
+<div> Ник: {{ profile.nickname }}</div>
+<div> {{ profile.description }}</div>
+<div> <h1 class="container p-2 my-5 bg-dark text-white">Посты пользователя: {{ user.username }}</h1></div>
+<div class="row container">
+    {% for post in posts %}
+        <div class="post col-lg-4 col-md-6">
+            <a href="/post/{{ post.id }}">
+                {{ post.name }}
+            </a>
+            {% if post.photo %}
+                <div>
+                    <img src="{{ post.photo.url}}" height="200px">
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+
+
+{% endblock %}

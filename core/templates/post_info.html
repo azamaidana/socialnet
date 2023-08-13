@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<h2>Пост</h2>
+{% if post.creator %}
+    <div>
+        Автор :
+        <a href="{% url 'user-posts' post.creator.id %}">
+            {{ post.creator.username }}
+        </a>
+    </div>
+{% endif %}
+<div>
+    Заголовок: {{ post.name }}
+</div>
+    {% if post.photo %}
+    <img src="{{ post.photo.url }}" height="200x">
+    {% endif %}
+
+<div>
+    Описание: {{ post.description }}
+</div>
+<div>
+    Кол-во лайков: {{ post.likes }}
+</div>
+<br>
+<h3>Добавить комментарий</h3>
+<form method="POST">
+    {% csrf_token %}
+    {% bootstrap_form comment_form %}
+    <button class="btn btn-info">Добавить</button>
+
+</form>
+<div>
+    {% if post in request.user.saved_posts.post.all %}
+         <form action="/add-delete/" method="POST">
+            {% csrf_token %}
+            <input type="number" name="post_id" value="{{ post.id }}" hidden>
+            <button class="btn btn-success">Удалить из Сохраннённого</button>
+         </form>
+    {% else %}
+        <form action="/add-saved/" method="POST">
+            {% csrf_token %}
+            <input type="number" name="post_id" value="{{ post.id }}" hidden>
+            <button class="btn btn-success">Добавить в Сохронённое </button>
+
+        </form>
+
+
+    {% endif %}
+</div>
+<h4>Коментарии</h4>
+{% for comment in comments %}
+    <div>
+        <b>{{ comment.created_by }}</b> {{ comment.comment_text }}
+    </div>
+{% endfor %}
+{% endblock %}
+

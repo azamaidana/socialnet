@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>HELLO WORLD</h1>
+<div class="my-text">
+    Это домашняя страница
+</div>
+{{ name }}
+<div>
+    <a href="/profile/{{ request.user.profile.id }}">
+        Профиль {{ request.user.username }}
+    </a>
+</div>
+<h2>Посты</h2>
+<ul>
+    {% for post in posts %}
+    <li>
+        <a href='/post/{{ post.id }}'>
+        {{ post.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+<h2>Категории</h2>
+<ul>
+    {% for category in categories %}
+        <li>
+            <a href="/categories/{{ category.id }}">
+            {{ category.name }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+<h2>Видео</h2>
+<ul>
+    {% for short in shorts %}
+        <li>
+            <a href="/short/{{ short.id }}">
+            {{ short.video }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+
+
+
+
+
+
+

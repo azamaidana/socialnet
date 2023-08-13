@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Посты пользователя : {{ user.username }}</h2>
+    <div class="row container">
+
+        {% for post in posts %}
+            <div class="post col-lg-4 col-md-6">
+            <a href='/post/{{ post.id }}'>
+                {{ post.name }}
+            </a>
+            {% if post.photo %}
+                <div>
+                    <img src="{{ post.photo.url }}">
+                </div>
+            {% endif %}
+            <p>
+                Лайки: {{ post.likes }}
+            </p>
+<!--            <hr>    -->
+        </div>
+
+        {% endfor %}
+    </div>
+{% endblock %}
+
+

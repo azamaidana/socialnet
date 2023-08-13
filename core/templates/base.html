@@ -1,0 +1,83 @@
+<!doctype html>
+{% load static %}
+{% load django_bootstrap5 %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Social НЭТ</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+
+    <link
+            rel="stylesheet"
+            href="{% static 'main.css' %}"
+    >
+
+
+</head>
+<body>
+            <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+                <div class="container-fluid">
+                  <a class="navbar-brand" href="/"><img src="{% static 'logo.png.png' %}" height="40px"></a>
+                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="mynavbar">
+                    <ul class="navbar-nav me-auto">
+                      <li class="nav-item">
+                        <a class="nav-link" href="/">Главная</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="{% url 'shorts-list' %}">Shorts</a>
+                      </li>
+                      {% if request.user.is_authenticated %}
+                      <li class="nav-item">
+                        <a class="nav-link" href="{% url 'saved-posts' %}">SavedPosts</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="{% url 'add-post' %}">Добавить пост</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="{% url 'add-short' %}">Добавить видео</a>
+                      </li>
+                        {% else %}
+                      <li class="nav-item">
+                          <a class="nav-link" href="">Регистрация</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="{% url 'sign-in' %}">Вход</a>
+                      </li>
+
+                      {% endif %}
+                    </ul>
+                    <form class="d-flex">
+                      <input class="form-control me-2" type="text" placeholder="Search">
+                      <button class="btn btn-primary" type="button">Search</button>
+                    </form>
+                  </div>
+                </div>
+            </nav>
+            <div class="row">
+                <div>
+                    {% if request.user.is_authenticated %}
+                        Привет, {{ request.user.username }}
+                    {% else %}
+                        Пожалуйста, авторизуйтесь
+                    {% endif %}
+                </div>
+                <div class="col-2">
+                <div>Главная</div>
+                <div>Поиск</div>
+                <div>Интересное</div>
+            </div>
+                <div class="col-10">
+                {% block content %}
+
+                {% endblock %}
+                </div>
+            </div>
+</body>
+</html>
