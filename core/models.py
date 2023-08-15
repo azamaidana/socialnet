@@ -7,6 +7,12 @@ class Profile(models.Model):
         on_delete=models.CASCADE)
     nickname = models.CharField(max_length=55)
     description = models.TextField(null=True, blank=True)
+    subscribers = models.ManyToManyField(
+        to=User,
+        blank=True,
+        related_name='followed_user'
+    )
+
 
 
 class Post(models.Model):
@@ -15,7 +21,7 @@ class Post(models.Model):
 
     name = models.CharField('Заголовок', max_length=80)
     description = models.TextField('Описание', null=True)
-    photo = models.ImageField('Фотография', upload_to='photo_post/', null=True, blank=True)
+    photo = models.ImageField('Фотография', upload_to='photo_post/', null=True, blank=False)
     status = models.CharField('Статус публикации', max_length=200, choices=status_choices,)
     likes = models.PositiveIntegerField('Лайк', default=0)
     # M2O

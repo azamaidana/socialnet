@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+{% for post in posts %}
+
+<div class="post">
+
+  <div> <h2 class="container p-2 my-5 bg-dark text-white"> POST </h2></div>
+
+<div> POST: {{ post.name }} </div>
+
+<div> AUTHOR {{ post.creator }}</div>
+
+</div>
+            {% if post.photo %}
+                <div>
+                    <img src="{{ post.photo.url}}" height="200px">
+                </div>
+            {% endif %}
+
+<div class="post">
+
+  <a href="/post/">
+    {{ post.name }} </a>
+{% endfor %}
+  </div>
+
+{% endblock %}

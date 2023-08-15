@@ -1,25 +1,41 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>HELLO WORLD</h1>
-<div class="my-text">
-    Это домашняя страница
-</div>
-{{ name }}
-<div>
-    <a href="/profile/{{ request.user.profile.id }}">
-        Профиль {{ request.user.username }}
-    </a>
-</div>
+    <div class="row">
+        {% for short in shorts %}
+            <div class="col">
+                <a href="{% url 'shorts-info' short.id %} ">
+                    <div>
+                        <video
+                             class="custom-circle"
+                             width="100px"
+                             src="{{ short.video.url }}">
+                        </video>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    <hr>
+    {% include 'includes/search_form.html' %}
+
+
 <h2>Посты</h2>
-<ul>
+
     {% for post in posts %}
-    <li>
-        <a href='/post/{{ post.id }}'>
-        {{ post.name }}
-        </a>
-    </li>
+        <div>
+            <a href="{% url 'user-posts' post.creator.id %}">
+                {{ post.creator.username }}
+            </a>
+        </div>
+        <div>
+            {% if post.photo %}
+                <a href="{% url 'post-detail' post.id %}">
+                    <img src="{{ post.photo.url }}" height="200px">
+                </a>
+            {% endif %}
+        </div>
     {% endfor %}
-</ul>
+
 <h2>Категории</h2>
 <ul>
     {% for category in categories %}

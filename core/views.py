@@ -1,5 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 # from django.contrib.auth.decorators import login.required
+from django.contrib import messages
+from django.db.models import Q
 from .models import *
 from .forms import CommentForm
 def homepage(request):
@@ -22,7 +24,11 @@ def category_detail(request, id):
     return render(request, 'category_detail.html', context)
 def profile_detail(request, id):
     context = {}
-    context['profile'] = Profile.objects.get(id=id)
+    profile = Profile.objects.get(id=id)
+    context['profile'] = profile
+    if request.method == "POST":
+        profile.subscribers.add(request.user)
+        profile.save()
     return render(request, 'profile_detail.html', context)
 
 def saved_posts_list(request):
@@ -111,10 +117,38 @@ def add_delete(request):
     if request.method == 'POST':
         post_id = request.POST['post_id']
         post_object = Post.objects.get(id=post_id)
-        saved_delete = SavedPosts.objects.get(user=request.user)
-        saved_delete.post.remove(post_object)
-        saved_delete.save()
+        saved_post = SavedPosts.objects.get(user=request.user)
+        saved_post.post.remove(post_object)
+        saved_post.save()
         return redirect('/saved_posts/')
+
+def post_list(request):
+    context = {}
+    post_list = Post.objects.all()
+    context['posts'] = post_list
+    return render(request, 'post_list.html', context)
+
+def search(request):
+
+    return render(request, 'search.html')
+
+def search_result(request):
+    key_word = request.GET["key_word"]
+    # posts = Post.objects.filter(name__icontains=key_word)
+    posts = Post.objects.filter(
+        Q(name__icontains=key_word) |
+        Q(description__icontains=key_word))
+    context = {"posts": posts}
+    return render(request, 'home.html', context)
+
+def subscriber(request, profile_id):
+    profile = Profile.objects.get(id=profile_id)
+    profile.subscribers.add(request.user)
+    profile.save()
+    messages.success(request, "Вы успешно подписались")
+    return redirect(f'/profile/{profile.id}')
+
+
 
 def contacts():
     return HttpResponse('Наши контакты!')

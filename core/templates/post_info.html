@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% block content %}
+{% include 'includes/search_form.html' %}
 <h2>Пост</h2>
+
+
+
 {% if post.creator %}
     <div>
         Автор :
@@ -33,11 +37,11 @@
 </form>
 <div>
     {% if post in request.user.saved_posts.post.all %}
-         <form action="/add-delete/" method="POST">
+        <form action="/remove-saved/" method="POST">
             {% csrf_token %}
             <input type="number" name="post_id" value="{{ post.id }}" hidden>
-            <button class="btn btn-success">Удалить из Сохраннённого</button>
-         </form>
+            <button class="btn btn-danger">Удалить из Сохраннённого</button>
+        </form>
     {% else %}
         <form action="/add-saved/" method="POST">
             {% csrf_token %}

@@ -5,9 +5,41 @@
 <h2> Профиль {{ profile.user.username }}</h2>
 <div> Ник: {{ profile.nickname }}</div>
 <div> {{ profile.description }}</div>
-<div> <h1 class="container p-2 my-5 bg-dark text-white">Посты пользователя: {{ user.username }}</h1></div>
+<div>Подписчиков: {{ profile.subscribers.count }}</div>
+<div>
+    <h3>Список подписчиков:</h3>
+    <div>
+        {% for user in profile.subscribers.all %}
+            <div>{{ user.username }}</div>
+        {% endfor %}
+    </div>
+</div>
+        <p>
+            <form  method="POST">
+                {% csrf_token %}
+                <button class="btn btn-info">Подписаться(это view)</button>
+            </form>
+        </p>
+
+        <p>
+            {% if request.user in profile.subscribers.all %}
+                <form>
+                    <button class="btn btn-danger">Отписаться</button>
+                </form>
+            {% else %}
+            <form action="/add-subscriber/{{ profile.id }}/" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-info">Подписаться(это )</button>
+            </form>
+            {% endif %}
+        </p>
+
+
+
+
+<h1 class="container p-2 my-5 bg-dark text-white">Посты пользователя: {{ user.username }}</h1>
 <div class="row container">
-    {% for post in posts %}
+    {% for post in profile.user.posts.all %}
         <div class="post col-lg-4 col-md-6">
             <a href="/post/{{ post.id }}">
                 {{ post.name }}
