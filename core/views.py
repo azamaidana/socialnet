@@ -148,6 +148,12 @@ def subscriber(request, profile_id):
     messages.success(request, "Вы успешно подписались")
     return redirect(f'/profile/{profile.id}')
 
+def unsubscribe(request,profile_id):
+    profile = Profile.objects.get(id=profile_id)
+    profile.subscribers.remove(request.user)
+    profile.save()
+    messages.success(request, "Вы успешно отписались")
+    return redirect(f'/profile/{profile.id}')
 
 
 def contacts():
