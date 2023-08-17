@@ -32,10 +32,10 @@ urlpatterns = [
     path('saved_posts/', saved_posts_list, name='saved-posts'),
     path('profile/<int:id>', profile_detail, name='profile'),
     path('add-profile/', add_profile, name='add-profile'),
-
     path('categories/<int:id>', category_detail),
     path('<int:user_id>/', user_posts, name='user-posts'),
     path('add-post/', create_post, name='add-post'),
+    path('make-post/', make_post, name='make-post'),
     path('add-short/', create_short, name='add-short'),
     path('add-saved/', add_saved, name='add-saved'),
     path('remove-saved/', add_delete, name='remove-saved'),
@@ -45,7 +45,6 @@ urlpatterns = [
     path('add-subscriber/<int:profile_id>/', subscriber, name='add-subscriber'),
     path('unsubscribe/<int:profile_id>/', unsubscribe, name='unsubscribe'),
     path('notification/', notification, name='notification'),
-    # path('likes/', likes, name='likes'),
 
     path('users', include('userapp.urls')),
 

@@ -13,7 +13,19 @@ class Profile(models.Model):
         related_name='followed_user'
     )
 
-
+    photo = models.ImageField(
+        upload_to='profile.photo/',
+        null=True
+    )
+    link_fb = models.CharField(
+        max_length=255, null=True, blank=True
+    )
+    whatsapp = models.CharField(
+        max_length=30, null=True, blank=True
+    )
+    telegram = models.CharField(
+        max_length=55, null=True, blank=True
+    )
 
 class Post(models.Model):
     status_choices = (('Published', 'Published'),

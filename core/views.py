@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 from django.db.models import Q
 from .models import *
-from .forms import CommentForm
+from .forms import CommentForm, ProfileForm, PostForm
 def homepage(request):
     context = {}
     context['name'] = 'Aidana'
@@ -22,6 +22,7 @@ def category_detail(request, id):
     category_object = Category.objects.get(id=id)
     context['category'] = category_object
     return render(request, 'category_detail.html', context)
+
 def profile_detail(request, id):
     context = {}
     profile = Profile.objects.get(id=id)
@@ -30,6 +31,38 @@ def profile_detail(request, id):
         profile.subscribers.add(request.user)
         profile.save()
     return render(request, 'profile_detail.html', context)
+
+def add_profile(request):
+    profile_form = ProfileForm()
+    context = {'profile_form': profile_form}
+
+    if request.method == "POST":
+        profile_form = ProfileForm(request.POST, request.FILES)
+        if profile_form.is_valid():
+            profile_object = profile_form.save(commit=False)
+            profile_object.user = request.user
+            profile_object.save()
+            return redirect(profile_detail, id=profile_object.id)
+        else:
+            return HttpResponse("Not valid")
+
+    return render(request, 'add_profile.html', context)
+
+def make_post(request):
+    post_form = PostForm()
+    context = {'post_form': post_form}
+
+    if request.method == "POST":
+        post_form = PostForm(request.POST, request.FILES)
+        if post_form.is_valid():
+            post_object = post_form.save(commit=False)
+            post_object.user = request.user
+            post_object.save()
+            return redirect(post_detail, id=post_object.id)
+        else:
+            return HttpResponse('Not valid')
+    return render(request, 'making_post.html', context)
+
 
 def saved_posts_list(request):
     posts = Post.objects.filter(saved_post__user=request.user)
@@ -44,7 +77,6 @@ def post_detail(request, id):
     context["comment_form"] = comment_form
     comments_list = Comment.objects.filter(post=post_object)
     context['comments'] = comments_list
-
 
     if request.method == "GET":
         return render(request, 'post_info.html', context)
@@ -190,15 +222,9 @@ def notification(request):
         notification.is_showed = True
     Notification.objects.bulk_update(notification_list, ['is_showed'])
     context = {'notifications': notification_list}
-
-    # new_notification = Notification(
-    #     user=profile.user,
-    #     text=f'Пользователь {request.user.username} оставил коментарии!')
-    # new_notification.save()
     return render(request, 'notification.html', context)
 
-def add_profile(request):
-    pass
+
 def contacts():
     return HttpResponse('Наши контакты!')
 
