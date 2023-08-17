@@ -106,6 +106,11 @@ class Short(models.Model):
     video = models.FileField('Видео', upload_to='video_post/', null=True, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     views_qty = models.PositiveIntegerField('Просмотры', default=0)
+    viewed_users = models.ManyToManyField(
+        to=User,
+        blank=True,
+        related_name='viewed_shorts',
+    )
 
     class Meta:
         verbose_name = 'Видео'
@@ -129,3 +134,11 @@ class SavedPosts(models.Model):
 
     def __str__(self):
         return f'{self.user}'
+
+class Notification(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.PROTECT)
+    text = models.CharField(max_length=255)
+    is_showed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text

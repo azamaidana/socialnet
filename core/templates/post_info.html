@@ -27,6 +27,20 @@
 <div>
     Кол-во лайков: {{ post.likes }}
 </div>
+<div>
+    <form method="POST">
+        {% csrf_token %}
+        <button class="btn btn-primary">Like</button>
+        <input name="like">
+    </form>
+</div>
+<div>
+    <form method="POST">
+        {% csrf_token %}
+        <button class="btn btn-primary">Dislike</button>
+        <input name="dislike">
+    </form>
+</div>
 <br>
 <h3>Добавить комментарий</h3>
 <form method="POST">

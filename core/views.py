@@ -44,16 +44,38 @@ def post_detail(request, id):
     context["comment_form"] = comment_form
     comments_list = Comment.objects.filter(post=post_object)
     context['comments'] = comments_list
+
+
     if request.method == "GET":
         return render(request, 'post_info.html', context)
     elif request.method == "POST":
-        comment_form = CommentForm(request.POST)
-        if comment_form.is_valid():
-            new_comment = comment_form.save(commit=False)
-            new_comment.created_by = request.user
-            new_comment.post = post_object
-            new_comment.save()
-            return HttpResponse("done")
+        if 'like' in request.POST:
+            post_object.likes += 1
+            post_object.save()
+            Notification.objects.create(
+                user=post_object.creator,
+                text=f'{request.user.username} лайкнул ваш пост c id {post_object.id}')
+            return redirect(post_detail, id=id)
+        elif 'dislike' in request.POST:
+            post_object.likes -= 1
+            post_object.save()
+
+            Notification.objects.create(
+                user=post_object.creator,
+                text=f'{request.user.username} дислайкнул ваш пост c id {post_object.id}')
+            return redirect(post_detail, id=id)
+        else:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.created_by = request.user
+                new_comment.post = post_object
+                new_comment.save()
+
+                Notification.objects.create(
+                    user=post_object.creator,
+                    text=f'{request.user.username} оставил комментарий!')
+        return HttpResponse("done")
 
 def shorts(request):
     context = {
@@ -62,9 +84,11 @@ def shorts(request):
     return render(request, "shorts.html", context)
 
 def short_info(request, id):
-    context = {}
-    short_object = Short.objects.get(id=id)
-    context['short'] = short_object
+    short = Short.objects.get(id=id)
+    short.views_qty += 1
+    short.viewed_users.add(request.user)
+    short.save()
+    context = {"short": short}
     return render(request, 'short_info.html', context)
 
 
@@ -146,6 +170,11 @@ def subscriber(request, profile_id):
     profile.subscribers.add(request.user)
     profile.save()
     messages.success(request, "Вы успешно подписались")
+
+    new_notification = Notification(
+        user=profile.user,
+        text=f'Пользователь {request.user.username} подписался на вас!')
+    new_notification.save()
     return redirect(f'/profile/{profile.id}')
 
 def unsubscribe(request,profile_id):
@@ -155,9 +184,25 @@ def unsubscribe(request,profile_id):
     messages.success(request, "Вы успешно отписались")
     return redirect(f'/profile/{profile.id}')
 
+def notification(request):
+    notification_list = Notification.objects.filter(user=request.user)
+    for notification in notification_list:
+        notification.is_showed = True
+    Notification.objects.bulk_update(notification_list, ['is_showed'])
+    context = {'notifications': notification_list}
 
+    # new_notification = Notification(
+    #     user=profile.user,
+    #     text=f'Пользователь {request.user.username} оставил коментарии!')
+    # new_notification.save()
+    return render(request, 'notification.html', context)
+
+def add_profile(request):
+    pass
 def contacts():
     return HttpResponse('Наши контакты!')
 
 def about_us():
     return HttpResponse('Информацмя о нас!')
+
+
