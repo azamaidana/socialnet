@@ -31,7 +31,7 @@ class Post(models.Model):
     status_choices = (('Published', 'Published'),
                       ('Unpublished', 'Unpublished'))
 
-    name = models.CharField('Заголовок', max_length=80)
+    name = models.CharField('Заголовок', max_length=80, null=True, blank=True)
     description = models.TextField('Описание', null=True)
     photo = models.ImageField('Фотография', upload_to='photo_post/', null=True, blank=False)
     status = models.CharField('Статус публикации', max_length=200, choices=status_choices,)
@@ -123,6 +123,7 @@ class Short(models.Model):
         blank=True,
         related_name='viewed_shorts',
     )
+    description = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Видео'

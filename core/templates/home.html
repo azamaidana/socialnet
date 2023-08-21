@@ -21,7 +21,7 @@
 
 <h2>Посты</h2>
 
-    {% for post in posts %}
+    {% for post in posts %} <!-- posts является контекстом, то есть списком постов -->
         <div>
             <a href="{% url 'user-posts' post.creator.id %}">
                 {{ post.creator.username }}
@@ -38,7 +38,7 @@
 
 <h2>Категории</h2>
 <ul>
-    {% for category in categories %}
+    {% for category in categories %}  <!-- catigories является контекстом, то есть списком категории -->
         <li>
             <a href="/categories/{{ category.id }}">
             {{ category.name }}
@@ -48,7 +48,7 @@
 </ul>
 <h2>Видео</h2>
 <ul>
-    {% for short in shorts %}
+    {% for short in shorts %}  <!-- shorts является контекстом, то есть списком шортсов-->
         <li>
             <a href="/short/{{ short.id }}">
             {{ short.video }}

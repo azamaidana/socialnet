@@ -26,15 +26,23 @@ urlpatterns = [
     path('', homepage),
     path('shorts/', shorts, name='shorts-list'),
     path('short/<int:id>', short_info, name='shorts-info'),
+    # то что мы тут передаем должно быть идентичным в <a href="">
+    # <a href="{% url 'short' short.id %}" вместо <int:id> прописываем short.id
+    # short_info - это функция(обработчик)
     path('contact/', contacts),
     path('about_us/', about_us),
     path('post/<int:id>', post_detail, name='post-detail'),
     path('saved_posts/', saved_posts_list, name='saved-posts'),
+    path('update-short/<int:id>', update_short, name='update-short'),
     path('profile/<int:id>', profile_detail, name='profile'),
     path('add-profile/', add_profile, name='add-profile'),
     path('categories/<int:id>', category_detail),
     path('<int:user_id>/', user_posts, name='user-posts'),
     path('add-post/', create_post, name='add-post'),
+    path('update-post/<int:id>', update_post, name='update-post'),
+    path('update-comment/<int:id>', update_comment, name='update-comment'),
+    path('delete-post/<int:id>/', delete_post, name='delete-post'),
+    path('delete-comment/<int:id>/', delete_comment, name='delete-comment'),
     path('make-post/', make_post, name='make-post'),
     path('add-short/', create_short, name='add-short'),
     path('add-saved/', add_saved, name='add-saved'),
@@ -45,7 +53,11 @@ urlpatterns = [
     path('add-subscriber/<int:profile_id>/', subscriber, name='add-subscriber'),
     path('unsubscribe/<int:profile_id>/', unsubscribe, name='unsubscribe'),
     path('notification/', notification, name='notification'),
-
+    path('update-profile/<int:id>', update_profile, name='update-profile'),
+    path('about/', AboutView.as_view(), name='about'),
+    path('contacts/', ContactsView.as_view(), name='contacts'),
+    path('workers/', WorkersListView.as_view(), name='workers'),
+    path('faq/', FAQView.as_view(), name='faq'),
     path('users', include('userapp.urls')),
 
 ]

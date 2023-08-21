@@ -26,27 +26,23 @@
     Кол-во лайков: {{ post.likes }}
 </div>
 <div>
+    <p>
     <form method="POST">
         {% csrf_token %}
         <button class="btn btn-primary">Like</button>
         <input name="like">
     </form>
+    </p>
 </div>
 <div>
+    <p>
     <form method="POST">
         {% csrf_token %}
         <button class="btn btn-primary">Dislike</button>
         <input name="dislike">
     </form>
+    </p>
 </div>
-<br>
-<h3>Добавить комментарий</h3>
-<form method="POST">
-    {% csrf_token %}
-    {% bootstrap_form comment_form %}
-    <button class="btn btn-info">Добавить</button>
-
-</form>
 <div>
     {% if post in request.user.saved_posts.post.all %}
         <form action="/remove-saved/" method="POST">
@@ -61,15 +57,39 @@
             <button class="btn btn-success">Добавить в Сохронённое </button>
 
         </form>
-
-
     {% endif %}
 </div>
+<br>
+<h3>Добавить комментарий</h3>
+<form method="POST">
+    {% csrf_token %}
+    {% bootstrap_form comment_form %}
+    <p>
+    <button class="btn btn-info">Добавить</button>
+    </p>
+</form>
+<div>
+    {% if request.user == post.creator %}
+        <p>
+            <a class="btn btn-success" href="{% url 'update-post' post.id %}">Изменить описание</a>
+        </p>
+        <p>
+            <a class="btn btn-danger" href="{% url 'delete-post' post.id %}">Удалить пост</a>
+        </p>
+    {% endif %}
+</div>    
+
 <h4>Коментарии</h4>
 {% for comment in comments %}
     <div>
-        <b>{{ comment.created_by }}</b> {{ comment.comment_text }}
+        <b>{{ comment.created_by }}</b>
+        {{ comment.comment_text }}
+        {% if request.user == comment.created_by %}
+        <a href="{% url 'update-comment' comment.id %}">Изменить</a>
+        <a href="{% url 'delete-comment' comment.id %}">Удалить</a>
+        {% endif %}
     </div>
 {% endfor %}
+
 {% endblock %}
 

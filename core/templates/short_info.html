@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <h2>Видео</h2>
 <div> Видео : {{ short.video }}</div>
 <div> Автор : {{ short.user }}</div>
@@ -9,4 +11,8 @@
 <div>
     Уникальные просмотры: {{ short.viewed_users.count }}
 </div>
-
+<div>
+    Описание: {{ short.description }}
+</div>
+<a href="{% url 'update-short' short.id %}" class="btn btn-info">Изменить</a>
+{% endblock %}

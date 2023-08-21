@@ -2,13 +2,39 @@ from django.shortcuts import render, HttpResponse, redirect
 # from django.contrib.auth.decorators import login.required
 from django.contrib import messages
 from django.db.models import Q
+from django.views import View
 from .models import *
-from .forms import CommentForm, ProfileForm, PostForm
+from .forms import CommentForm, ProfileForm, PostForm, UpdateProfileForm
+
+
+class NoContextView(View):
+    template_name = None # required
+    def get(self, request):
+        return render(request, self.template_name)
+
+class AboutView(NoContextView):
+    template_name = 'about.html'
+
+class ContactsView(NoContextView):
+    template_name = 'contacts.html'
+
+class WorkersListView(NoContextView):
+    template_name = 'worker_lst.html'
+
+class FAQView(NoContextView):
+    template_name = 'faq.html'
+
+# class AboutView(View):
+#     def get(self, request):
+#         return render(request, 'about.html')
+
+
 def homepage(request):
-    context = {}
+    context = {}     # это словарь, ключами которого являются название переменных,
+                     # в html странице
     context['name'] = 'Aidana'
-    posts_list = Post.objects.all()
-    context['posts'] = posts_list
+    posts_list = Post.objects.all()  # Мы получаем список постов с бд(все объекты в бд)                     # SELECT * FROM Post
+    context['posts'] = posts_list    # теперь список постов хранится в переменной posts(список объектов)
     category_list = Category.objects.all()
     context['categories'] = category_list
     short_list = Short.objects.all()
@@ -56,11 +82,11 @@ def make_post(request):
         post_form = PostForm(request.POST, request.FILES)
         if post_form.is_valid():
             post_object = post_form.save(commit=False)
-            post_object.user = request.user
+            post_object.creator = request.user
             post_object.save()
             return redirect(post_detail, id=post_object.id)
         else:
-            return HttpResponse('Not valid')
+            return HttpResponse('Не валидно')
     return render(request, 'making_post.html', context)
 
 
@@ -69,10 +95,17 @@ def saved_posts_list(request):
     context = {'posts': posts}
     return render(request, 'saved_posts.html', context)
 
+def post_list(request):
+    context = {}
+    post_list = Post.objects.all()
+    context['posts'] = post_list
+    return render(request, 'post_list.html', context)
+
 def post_detail(request, id):
     context = {}
-    post_object = Post.objects.get(id=id)
-    context['post'] = post_object
+    post_object = Post.objects.get(id=id) # select запрос, можно использовать get() метод,
+                                          # если знаю что существует только один объект, соответствующий моему запросу
+    context['post'] = post_object # один запрос(один пост)
     comment_form = CommentForm()
     context["comment_form"] = comment_form
     comments_list = Comment.objects.filter(post=post_object)
@@ -108,20 +141,7 @@ def post_detail(request, id):
                     user=post_object.creator,
                     text=f'{request.user.username} оставил комментарий!')
         return HttpResponse("done")
-
-def shorts(request):
-    context = {
-        'shorts_list': Short.objects.all()
-    }
-    return render(request, "shorts.html", context)
-
-def short_info(request, id):
-    short = Short.objects.get(id=id)
-    short.views_qty += 1
-    short.viewed_users.add(request.user)
-    short.save()
-    context = {"short": short}
-    return render(request, 'short_info.html', context)
+        #
 
 
 def user_posts(request, user_id):
@@ -146,6 +166,20 @@ def create_post(request):
         new_post.creator = request.user
         new_post.save()
         return HttpResponse('done')
+
+def shorts(request):
+    context = {
+        'shorts_list': Short.objects.all()
+    }
+    return render(request, "shorts.html", context)
+
+def short_info(request, id):
+    short = Short.objects.get(id=id)
+    short.views_qty += 1
+    short.viewed_users.add(request.user)
+    short.save()
+    context = {"short": short}
+    return render(request, 'short_info.html', context)
 
 def create_short(request):
     if request.method == "GET":
@@ -177,12 +211,6 @@ def add_delete(request):
         saved_post.post.remove(post_object)
         saved_post.save()
         return redirect('/saved_posts/')
-
-def post_list(request):
-    context = {}
-    post_list = Post.objects.all()
-    context['posts'] = post_list
-    return render(request, 'post_list.html', context)
 
 def search(request):
 
@@ -223,6 +251,125 @@ def notification(request):
     Notification.objects.bulk_update(notification_list, ['is_showed'])
     context = {'notifications': notification_list}
     return render(request, 'notification.html', context)
+
+def update_short(request, id):
+    short = Short.objects.get(id=id)
+    if request.method == "POST":
+        new_description = request.POST['description']
+        short.description = new_description
+        short.save()
+        return redirect(short_info, id=short.id)
+    context = {'short': short}
+    return render(request, 'update_short.html', context)
+
+def update_post(request,id):
+    context = {}
+    post_object = Post.objects.get(id=id)
+
+
+    if request.user != post_object.creator:
+        return HttpResponse("нет доступа")
+
+    if request.method == 'POST':
+        post_form = PostForm(
+            data=request.POST,
+            files=request.FILES,
+            instance=post_object)
+
+        if post_form.is_valid():
+            post_form.save()
+            return redirect(post_detail, id=post_object.id)
+        else:
+            messages.warning(request, "Форма не валидна")
+            context['post_form'] = post_form
+            return render(request, 'update_post.html', context)
+    post_form = PostForm(instance=post_object)
+    context['post_form'] = post_form
+    return render(request, 'update_post.html', context)
+
+def make_post(request):
+    post_form = PostForm()
+    context = {'post_form': post_form}
+
+    if request.method == "POST":
+        post_form = PostForm(request.POST, request.FILES)
+        if post_form.is_valid():
+            post_object = post_form.save(commit=False)
+            post_object.creator = request.user
+            post_object.save()
+            return redirect(post_detail, id=post_object.id)
+        else:
+            return HttpResponse('Не валидно')
+    return render(request, 'making_post.html', context)
+
+def update_comment(request, id):
+    comment = Comment.objects.get(id=id)
+
+    if request.user != comment.created_by:
+        messages.warning(request, 'Нет доступа')
+        return redirect(post_detail, id=comment.post.id)
+
+    if request.method == "POST":
+        comment_form = CommentForm(instance=comment, data=request.POST)
+        if comment_form.is_valid():
+            comment_form.save()
+            return redirect(post_detail, id=comment.post.id)
+
+    comment_form = CommentForm(instance=comment)
+    context = {'comment_form': comment_form}
+    return render(request, "update_comment.html", context)
+
+
+def delete_comment(request,id):
+    comment = Comment.objects.get(id=id)
+
+    if request.user != comment.created_by:
+        return HttpResponse("нет доступа")
+
+    comment.delete()
+    return redirect(post_detail, id=comment.post.id)
+
+
+
+
+def delete_post(request, id):
+    post = Post.objects.get(id=id)
+
+    if request.user != post.creator:
+        return HttpResponse("нет доступа")
+
+    post.delete()
+    return redirect(homepage)
+
+def update_comment(request, id):
+    comment = Comment.objects.get(id=id)
+
+    if request.user != comment.created_by:
+        messages.warning(request, 'Нет доступа')
+        return redirect(post_detail, id=comment.post.id)
+
+    if request.method == "POST":
+        comment_form = CommentForm(instance=comment, data=request.POST)
+        if comment_form.is_valid():
+            comment_form.save()
+            return redirect(post_detail, id=comment.post.id)
+
+    comment_form = CommentForm(instance=comment)
+    context = {'comment_form': comment_form}
+    return render(request, "update_comment.html", context)
+def update_profile(request, id):
+    profile = Profile.objects.get(id=id)
+
+    if request.method == 'POST':
+        profile_form = ProfileForm(instance=profile, data=request.POST, files=request.FILES)
+        if profile_form.is_valid():
+            profile_form.save()
+            return redirect(profile_detail, id=profile.id)
+
+    profile_form = ProfileForm(instance=profile)
+    context = {'profile_form': profile_form}
+    return render(request, 'update_profile.html',context)
+
 
 
 def contacts():

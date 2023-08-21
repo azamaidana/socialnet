@@ -3,9 +3,13 @@
 
 
 <h2> Профиль {{ profile.user.username }}</h2>
-<div> Ник: {{ profile.nickname }}</div>
+<div> Ник: {{ profile.nickname }}
+    <a class="btn btn-primary" href="{% url 'update-profile' profile.id %}">Изменить</a>
+</div>
 <div> {{ profile.description }}</div>
 <div>Подписчиков: {{ profile.subscribers.count }}</div>
+<div> <img src="{{ profile.photo.url }}" height="200px">
+</div>
 <div>
     <h3>Список подписчиков:</h3>
     <div>
