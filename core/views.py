@@ -237,12 +237,9 @@ def create_post(request):
         return HttpResponse('done')
 
 
-class ShortsView(View):
-    def get(self, request):
-        context = {
-            'shorts_list': Short.objects.all()
-        }
-        return render(request, "shorts.html", context)
+class ShortsListView(ListView):
+    queryset = Short.objects.all()
+    template_name = 'core/short_list_cbv.html'
 
 class ShortInfoView(View):
     def get(self, request, id, *args, **kwargs):
@@ -255,6 +252,8 @@ class ShortInfoView(View):
         return render(request, 'short_info.html', context)
 
 
+
+
 def create_short(request):
     if request.method == "GET":
         return render(request, "short_form.html")
@@ -264,7 +263,7 @@ def create_short(request):
             video=request.FILES["video_file"]
         )
         new_short.save()
-        return redirect('shorts-info', id=new_short.id)
+        return redirect('shorts-info-cbv', id=new_short.id)
 
 def add_saved(request):
     if request.method == 'POST':
@@ -330,7 +329,7 @@ def update_short(request, id):
         new_description = request.POST['description']
         short.description = new_description
         short.save()
-        return redirect(short_info, id=short.id)
+        return redirect('shorts-info-cbv', id=short.id)
     context = {'short': short}
     return render(request, 'update_short.html', context)
 

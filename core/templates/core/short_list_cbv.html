@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <h2>Shorts</h2>
-    {% for short in shorts_list %}
+    {% for short in object_list %}
         <div>
             <hr>
             <a href="{% url 'shorts-info-cbv' short.id %}">{{short.user }} - {{ short.created_at }}</a>
@@ -11,3 +11,6 @@
         </div>
     {% endfor %}
 {% endblock %}
+
+
+

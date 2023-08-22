@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage),
-    path('shorts-list-cbv/', ShortsView.as_view(), name='shorts-list-cbv'),
+    path('shorts-list-cbv/', ShortsListView.as_view(), name='shorts-list-cbv'),
     path('short-cbv/<int:id>', ShortInfoView.as_view(), name='shorts-info-cbv'),
     # то что мы тут передаем должно быть идентичным в <a href="">
     # <a href="{% url 'short' short.id %}" вместо <int:id> прописываем short.id
