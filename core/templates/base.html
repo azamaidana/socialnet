@@ -33,7 +33,7 @@
                 <a class="nav-link" href="/">Главная</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'shorts-list' %}">Shorts</a>
+                <a class="nav-link" href="{% url 'shorts-list-cbv' %}">Shorts</a>
               </li>
               {% if request.user.is_authenticated %}
                 <li class="nav-item">
@@ -93,6 +93,11 @@
               </a>
             </div>
             <div class="my-focus">
+              <a href="{% url 'posts-list-cbv' %}">
+                Посты
+              </a>
+            </div>
+            <div class="my-focus">
               <a href="{% url 'workers' %}">
                 Список работников
               </a>
@@ -103,20 +108,20 @@
               </a>
             </div>
             <div class="my-focus">
-                <a href="{% url 'search' %}">
+                <a href="{% url 'search-cbv' %}">
                     Поиск
                 </a>
             </div>
             <div class="my-focus">Интересное</div>
             <div class="my-focus">
-                <a href="{% url 'shorts-list' %}">
+                <a href="{% url 'shorts-list-cbv' %}">
                     Short
                 </a>
             </div>
           {% if request.user.is_authenticated %}
             <div class="my-focus">Сообщение</div>
             <div class="my-focus">
-                <a href="{% url 'notification' %}">
+                <a href="{% url 'notification-cbv' %}">
                     Уведомление -
                     {{ request.user.notification_set.count }}
                 </a>

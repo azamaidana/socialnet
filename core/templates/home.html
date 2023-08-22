@@ -3,7 +3,7 @@
     <div class="row">
         {% for short in shorts %}
             <div class="col">
-                <a href="{% url 'shorts-info' short.id %} ">
+                <a href="{% url 'shorts-info-cbv' short.id %} ">
                     <div>
                         <video
                              class="custom-circle"
@@ -50,7 +50,7 @@
 <ul>
     {% for short in shorts %}  <!-- shorts является контекстом, то есть списком шортсов-->
         <li>
-            <a href="/short/{{ short.id }}">
+            <a href="/short-cbv/{{ short.id }}">
             {{ short.video }}
             </a>
         </li>

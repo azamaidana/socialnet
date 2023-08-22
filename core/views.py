@@ -3,6 +3,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 from django.db.models import Q
 from django.views import View
+from django.views.generic import ListView
 from .models import *
 from .forms import CommentForm, ProfileForm, PostForm, UpdateProfileForm
 
@@ -140,8 +141,76 @@ def post_detail(request, id):
                 Notification.objects.create(
                     user=post_object.creator,
                     text=f'{request.user.username} оставил комментарий!')
-        return HttpResponse("done")
-        #
+        return redirect('post-detail-cbv', id=id)
+
+class PostDetailView(View):
+    def get_context(self):
+        id = self.kwargs['id']
+        context = {}
+        post_object = Post.objects.get(id=id)
+        context['post'] = post_object
+        comment_form = CommentForm()
+        context["comment_form"] = comment_form
+        comments_list = Comment.objects.filter(post=post_object)
+        context['comments'] = comments_list
+        return context
+    def get(self, request, *args, **kwargs):
+        context = self.get_context()
+        return render(request, 'post_info.html', context)
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context()
+        post_object = context['post']
+        if 'like' in request.POST:
+            post_object.likes += 1
+            post_object.save()
+            Notification.objects.create(
+                user=post_object.creator,
+                text=f'{request.user.username} лайкнул ваш пост c id {post_object.id}')
+            return redirect(post_detail, id=post_object.id)
+        elif 'dislike' in request.POST:
+            post_object.likes -= 1
+            post_object.save()
+
+            Notification.objects.create(
+                user=post_object.creator,
+                text=f'{request.user.username} дислайкнул ваш пост c id {post_object.id}')
+            return redirect(post_detail, id=post_object.id)
+        else:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.created_by = request.user
+                new_comment.post = post_object
+                new_comment.save()
+
+                Notification.objects.create(
+                    user=post_object.creator,
+                    text=f'{request.user.username} оставил комментарий!')
+        return redirect('post-detail-cbv', id=post_object.id)
+
+
+class PostsListlView(ListView):
+    queryset = Post.objects.all()
+    # template_name = 'post_list_cbv.html'
+
+class SubscribesView(View):
+    def get(self, request, *args, **kwargs):
+        user_object = User.objects.get(id=kwargs['user_id'])
+        profiles_list = user_object.followed_user.all()
+        context = {'profiles_list': profiles_list}
+        return render(request, 'subscribers.html', context)
+
+
+class NotificationListView(View):
+    def get(self, request):
+        notification_list = Notification.objects.filter(user=request.user)
+        for notification in notification_list:
+            notification.is_showed = True
+        Notification.objects.bulk_update(notification_list, ['is_showed'])
+        context = {'notifications': notification_list}
+        return render(request, 'notification.html', context)
+
 
 
 def user_posts(request, user_id):
@@ -167,19 +236,24 @@ def create_post(request):
         new_post.save()
         return HttpResponse('done')
 
-def shorts(request):
-    context = {
-        'shorts_list': Short.objects.all()
-    }
-    return render(request, "shorts.html", context)
 
-def short_info(request, id):
-    short = Short.objects.get(id=id)
-    short.views_qty += 1
-    short.viewed_users.add(request.user)
-    short.save()
-    context = {"short": short}
-    return render(request, 'short_info.html', context)
+class ShortsView(View):
+    def get(self, request):
+        context = {
+            'shorts_list': Short.objects.all()
+        }
+        return render(request, "shorts.html", context)
+
+class ShortInfoView(View):
+    def get(self, request, id, *args, **kwargs):
+        id = self.kwargs['id']
+        short = Short.objects.get(id=id)
+        short.views_qty += 1
+        short.viewed_users.add(request.user)
+        short.save()
+        context = {"short": short}
+        return render(request, 'short_info.html', context)
+
 
 def create_short(request):
     if request.method == "GET":
@@ -212,18 +286,22 @@ def add_delete(request):
         saved_post.save()
         return redirect('/saved_posts/')
 
-def search(request):
 
-    return render(request, 'search.html')
+class SearchView(View):
+    def get(self, request):
+        return render(request, 'search.html')
 
-def search_result(request):
-    key_word = request.GET["key_word"]
-    # posts = Post.objects.filter(name__icontains=key_word)
-    posts = Post.objects.filter(
-        Q(name__icontains=key_word) |
-        Q(description__icontains=key_word))
-    context = {"posts": posts}
-    return render(request, 'home.html', context)
+
+class SearchResultView(View):
+    def get(self, request):
+        key_word = request.GET["key_word"]
+        # posts = Post.objects.filter(name__icontains=key_word)
+        posts = Post.objects.filter(
+            Q(name__icontains=key_word) |
+            Q(description__icontains=key_word))
+        context = {"posts": posts}
+        return render(request, 'home.html', context)
+
 
 def subscriber(request, profile_id):
     profile = Profile.objects.get(id=profile_id)
@@ -244,13 +322,7 @@ def unsubscribe(request,profile_id):
     messages.success(request, "Вы успешно отписались")
     return redirect(f'/profile/{profile.id}')
 
-def notification(request):
-    notification_list = Notification.objects.filter(user=request.user)
-    for notification in notification_list:
-        notification.is_showed = True
-    Notification.objects.bulk_update(notification_list, ['is_showed'])
-    context = {'notifications': notification_list}
-    return render(request, 'notification.html', context)
+
 
 def update_short(request, id):
     short = Short.objects.get(id=id)
