@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Посты со стороннего API</h2>
+    {% for post in posts %}
+
+        <div>
+            <a href="{% url 'post-api' post.id %}">
+            {{ post.title }}
+            </a>
+        </div>
+    {% endfor %}
+{% endblock %}

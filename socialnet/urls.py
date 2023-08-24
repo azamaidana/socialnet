@@ -37,7 +37,11 @@ urlpatterns = [
     path('post/<int:id>', post_detail, name='post-detail'),
     path('post-cbv/<int:pk>', PostDetailView.as_view(), name='post-detail-cbv'),
     path('posts-list-cbv/', PostsListlView.as_view(), name='posts-list-cbv'),
+    path('posts-api/', PostsFromAPI.as_view(), name='posts-api'),
+    path('post-api/<int:id>', PostDetailFromAPI.as_view(), name='post-api'),
     path('posts-filter/', PostsFilterView.as_view(), name='posts-filter'),
+    path('to-dos/', ToDos.as_view(), name='to-dos'),
+    path('to-do/<int:id>', ToDosDetail.as_view(), name='to-do'),
 
     # path('posts-filter/', PostsFilterlView.as_view(), name='posts-filter'),
     path('saved_posts/', saved_posts_list, name='saved-posts'),

@@ -2,12 +2,11 @@
 
 {% block content %}
 
-{% for post in post_filter %}
+{% for post in object_list %}
 <div> <h2 class="container p-2 my-5 bg-dark text-white"> POST </h2></div>
 <div> POST: {{ post.name }} </div>
 
 <div> AUTHOR {{ post.creator }}</div>
-
 
             {% if post.photo %}
                 <div>

@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.views import View
 from django.views.generic import ListView, DetailView
 from django_filters.views import FilterView
+import requests
 from .models import *
 from .forms import *
 from .filters import *
@@ -197,13 +198,42 @@ class PostDetailView(View):
 
 class PostsListlView(ListView):
     queryset = Post.objects.all()
-    template_name = 'post_list_cbv.html'
+    template_name = 'core/post_list_cbv.html'
 
 class PostsFilterView(FilterView):
     model = Post
     filterset_class = PostFilter
     template_name = 'core/posts_filter.html'
 
+class PostsFromAPI(View):
+    def get(self, request):
+        context = {}
+        response = requests.get("https://jsonplaceholder.typicode.com/posts")
+        data = response.json()
+        context["posts"] = data
+        return render(request, 'core/posts_from_api.html', context)
+
+class PostDetailFromAPI(View):
+    def get(self, request, *arg, **kwargs):
+        id = kwargs['id']
+        response = requests.get(f"https://jsonplaceholder.typicode.com/posts/{id}")
+        post_data = response.json()
+        return render(request, 'core/post_detail_from_api.html', {"post": post_data})
+
+class ToDos(View):
+    def get(self, request):
+        context ={}
+        response = requests.get('https://jsonplaceholder.typicode.com/todos/')
+        todos = response.json()
+        context['todos'] = todos
+        return render(request, 'core/to_dos.html', context)
+
+class ToDosDetail(View):
+    def get(self, request, *args, **kwargs):
+        id = kwargs['id']
+        response = requests.get(f'https://jsonplaceholder.typicode.com/todos/{id}')
+        todo_data = response.json()
+        return render(request, 'core/to_dos_detail.html', {'todo': todo_data})
 
 class NotificationListView(View):
     def get(self, request):
