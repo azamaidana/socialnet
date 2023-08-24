@@ -3,9 +3,12 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib import messages
 from django.db.models import Q
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
+from django_filters.views import FilterView
 from .models import *
-from .forms import CommentForm, ProfileForm, PostForm, UpdateProfileForm
+from .forms import *
+from .filters import *
+
 
 
 class NoContextView(View):
@@ -92,14 +95,16 @@ def make_post(request):
 
 
 def saved_posts_list(request):
-    posts = Post.objects.filter(saved_post__user=request.user)
+    posts = Post.objects.filter(saved_post__user=request.user)  # этот запрос вернет список сохр.постов
     context = {'posts': posts}
     return render(request, 'saved_posts.html', context)
 
 def post_list(request):
-    context = {}
-    post_list = Post.objects.all()
-    context['posts'] = post_list
+    post_filter = PostFilter(
+        request.GET,
+        queryset=Post.objects.all()
+    )
+    context = {'post_filter': post_filter}
     return render(request, 'post_list.html', context)
 
 def post_detail(request, id):
@@ -192,14 +197,12 @@ class PostDetailView(View):
 
 class PostsListlView(ListView):
     queryset = Post.objects.all()
-    # template_name = 'post_list_cbv.html'
+    template_name = 'post_list_cbv.html'
 
-class SubscribesView(View):
-    def get(self, request, *args, **kwargs):
-        user_object = User.objects.get(id=kwargs['user_id'])
-        profiles_list = user_object.followed_user.all()
-        context = {'profiles_list': profiles_list}
-        return render(request, 'subscribers.html', context)
+class PostsFilterView(FilterView):
+    model = Post
+    filterset_class = PostFilter
+    template_name = 'core/posts_filter.html'
 
 
 class NotificationListView(View):
@@ -236,22 +239,48 @@ def create_post(request):
         new_post.save()
         return HttpResponse('done')
 
+def shorts(request):
+    short_filter = ShortFilter(
+        request.GET,
+        queryset=Short.objects.all()
+    )
+    context = {'short_filter': short_filter}
+    return render(request, 'shorts.html', context)
+
 
 class ShortsListView(ListView):
     queryset = Short.objects.all()
     template_name = 'core/short_list_cbv.html'
 
-class ShortInfoView(View):
-    def get(self, request, id, *args, **kwargs):
-        id = self.kwargs['id']
-        short = Short.objects.get(id=id)
+class ShortsFilterView(FilterView):
+    model = Short
+    filterset_class = ShortFilter
+    # filterset_fields = ['id', 'user', 'views_qty']
+
+class ShortDetailView(DetailView):
+    queryset = Short.objects.all()
+    template_name = 'short_info.html'
+    def get(self, request, *args, **kwargs):
+        short = self.get_object()
         short.views_qty += 1
-        short.viewed_users.add(request.user)
+        if request.user.is_authenticated:
+            short.viewed_users.add(request.user)
         short.save()
-        context = {"short": short}
-        return render(request, 'short_info.html', context)
+        return super().get(request, *args, **kwargs)
 
-
+def short_info( request, id):
+    try:
+        short = Short.objects.get(id=id)
+    except Short.DoesNotExist:
+        return HttpResponse(
+            "Ошибка 404. Такого объекта не существует"
+        )
+    short.views_qty += 1
+    if request.user.is_authenticated:
+        short.viewed_users.add(request.user)
+    short.save()
+    context = {"short": short}
+    return render(request, "short_info.html", context)
 
 
 def create_short(request):
@@ -301,6 +330,12 @@ class SearchResultView(View):
         context = {"posts": posts}
         return render(request, 'home.html', context)
 
+class SubscribesView(View):
+    def get(self, request, *args, **kwargs):
+        user_object = User.objects.get(id=kwargs['user_id'])
+        profiles_list = user_object.followed_user.all()
+        context = {"profiles_list": profiles_list}
+        return render(request, 'subscribers_list.html', context)
 
 def subscriber(request, profile_id):
     profile = Profile.objects.get(id=profile_id)

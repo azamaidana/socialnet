@@ -24,16 +24,22 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage),
+    path('shorts-list/', shorts,  name='shorts-list'),
     path('shorts-list-cbv/', ShortsListView.as_view(), name='shorts-list-cbv'),
-    path('short-cbv/<int:id>', ShortInfoView.as_view(), name='shorts-info-cbv'),
+    path('shorts-filter/', ShortsFilterView.as_view(), name='shorts-filter'),
+    path('short-cbv/<int:pk>', ShortDetailView.as_view(), name='shorts-info-cbv'),
+    path('short-info/<int:id>', short_info, name='short-info'),
     # то что мы тут передаем должно быть идентичным в <a href="">
     # <a href="{% url 'short' short.id %}" вместо <int:id> прописываем short.id
     # short_info - это функция(обработчик)
     path('contact/', contacts),
     path('about_us/', about_us),
     path('post/<int:id>', post_detail, name='post-detail'),
-    path('post-cbv/<int:id>', PostDetailView.as_view(), name='post-detail-cbv'),
+    path('post-cbv/<int:pk>', PostDetailView.as_view(), name='post-detail-cbv'),
     path('posts-list-cbv/', PostsListlView.as_view(), name='posts-list-cbv'),
+    path('posts-filter/', PostsFilterView.as_view(), name='posts-filter'),
+
+    # path('posts-filter/', PostsFilterlView.as_view(), name='posts-filter'),
     path('saved_posts/', saved_posts_list, name='saved-posts'),
     path('update-short/<int:id>', update_short, name='update-short'),
     path('profile/<int:id>', profile_detail, name='profile'),

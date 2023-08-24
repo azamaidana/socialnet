@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+    {% include 'includes/search_form.html' %}
+    <hr>
+        <form method="get">
+            {% bootstrap_form filter.form %}
+            <button class="btn btn-info">Применить</button>
+        </form>
+    <hr>
+
+    <h2>Shorts</h2>
+    {% for short in filter.qs %}
+        <div>
+            <hr>
+            <a href="{% url 'short-info' short.id %}">
+                {{ short.user }} - {{ short.created_at }}
+            </a>
+            <div>
+                <video width="350px" src="{{ short.video.url }}">
+                </video>
+            </div>
+        </div>
+    {% empty %}
+        <div>Нет записей, удовлетворяющих указанным условиям</div>
+    {% endfor %}
+{% endblock %}

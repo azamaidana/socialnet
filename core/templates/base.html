@@ -98,6 +98,11 @@
               </a>
             </div>
             <div class="my-focus">
+              <a href="{% url 'posts-filter' %}">
+                Posts Filter
+              </a>
+            </div>
+            <div class="my-focus">
               <a href="{% url 'workers' %}">
                 Список работников
               </a>
@@ -114,8 +119,18 @@
             </div>
             <div class="my-focus">Интересное</div>
             <div class="my-focus">
-                <a href="{% url 'shorts-list-cbv' %}">
+                <a href="{% url 'shorts-list' %}">
                     Short
+                </a>
+            </div>
+            <div class="my-focus">
+                <a href="{% url 'shorts-list-cbv' %}">
+                    Short-CBV
+                </a>
+            </div>
+            <div class="my-focus">
+                <a href="{% url 'shorts-filter' %}">
+                    Short-Filter
                 </a>
             </div>
           {% if request.user.is_authenticated %}
